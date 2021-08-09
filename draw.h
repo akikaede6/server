@@ -6,28 +6,20 @@
 #include <QWidget>
 #include <QtDBus>
 
-
-class drawred : public QWidget
-{
-    Q_OBJECT
-
-protected:
-    void paintEvent(QPaintEvent *);
-};
-
-class drawgreen : public QWidget
+class draw : public QWidget
 {
     Q_OBJECT
 
 public:
-    void setcolor(QDBusReply<bool> color);
-    QDBusReply<bool> getcolor();
+    QColor usebrush(int release);
+    ~draw();
 
 protected:
     void paintEvent(QPaintEvent *);
 
 private:
-    QDBusReply<bool> color;
+    int release = 2;
+//    QPainter *painter;
 };
 
 #endif // DRAW_H

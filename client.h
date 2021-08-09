@@ -1,8 +1,10 @@
 #ifndef CLIENT_H
 #define CLIENT_H
+#include "store.h"
 
 #include <QMainWindow>
 #include <QtDBus>
+#include <QValidator>
 
 namespace Ui {
 class client;
@@ -15,14 +17,9 @@ class client : public QMainWindow
 public:
     explicit client(QWidget *parent = nullptr);
     ~client();
-    QString getName();
-    int getAge();
-    QString getTelephone();
-    QString getIdnumber();
-    QString getAddress();
-    double getTempure();
-    void setend(QDBusReply<bool> end);
-    bool getend();
+    void setend(QDBusReply<int> _end);
+    static int getend();
+    store text;
 
 private:
     Ui::client *ui;
@@ -37,7 +34,11 @@ private:
     QString idnumber;
     QString address;
     double tempure = 0;
-    QDBusReply<bool> end;
+    static QDBusReply<int> end;
+//    QValidator *validator = new QRegExpValidator;
+//    QValidator *validatora = new QRegExpValidator;
 };
+
+inline QDBusReply<int> client::end;
 
 #endif // CLIENT_H

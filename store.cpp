@@ -27,7 +27,6 @@ void store::settempure(double tempure) {
 }
 
 QString store::getName() {
-//    qInfo() << "run getname";
     return name;
 }
 

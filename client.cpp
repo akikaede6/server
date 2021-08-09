@@ -1,6 +1,5 @@
 #include "client.h"
 #include "ui_client.h"
-#include "store.h"
 #include "draw.h"
 
 #include <QDebug>
@@ -14,9 +13,20 @@ client::client(QWidget *parent) :
     ui(new Ui::client)
 {
     ui->setupUi(this);
-    connect(ui->ok, SIGNAL(clicked()),this,SLOT(btn_slot()));
-}
+    ui->age->setValidator(new QIntValidator(0, 200, this));
+    ui->tempture->setValidator(new QDoubleValidator(34.00, 42.00, 2, this));
+    QRegExp regx("[1-9][0-9]+$");
+    QRegExp regxa("[1-9][0-9]+[X0-9]$");
+    QValidator *validator = new QRegExpValidator(regx, ui->phone);
+    QValidator *validatora = new QRegExpValidator(regxa, ui->id);
+    ui->phone->setValidator(validator);
+    ui->id->setValidator(validatora);
 
+    connect(ui->ok, SIGNAL(clicked()),this,SLOT(btn_slot()));
+
+    draw *color = new draw;
+    ui->layout->addWidget(color);
+}
 
 client::~client()
 {
@@ -25,40 +35,41 @@ client::~client()
 
 void client::btn_slot()
 {
-    store text;
     text.setname(ui->name->text());
     text.setage(QString(ui->age->text()).toInt());
     text.setphone(ui->phone->text());
     text.setid(ui->id->text());
     text.setaddress(ui->address->text());
     text.settempure(QString(ui->tempture->text()).toDouble());
-    qInfo() << text.getName() << text.getAge() << text.getTelephone() << text.getAddress() << text.getIdnumber() << text.getTempure();
+//    qInfo() << text.getName() << text.getAge() << text.getTelephone() << text.getAddress() << text.getIdnumber() << text.getTempure();
     QDBusInterface interface("org.healthy", "/healthy/text", "org.healthy.text");
-    client judge;
-    drawgreen color;
     if (interface.isValid()) {
-        judge.setend(interface.call("setarg", text.getName(), text.getAge(), text.getTelephone(), text.getIdnumber(), text.getAddress(), text.getTempure()));
-        qInfo() << judge.getend();
-        if (judge.getend()) {
+        setend(interface.call("setarg", text.getName(), text.getAge(), text.getTelephone(), text.getIdnumber(), text.getAddress(), text.getTempure()));
+        if (getend() == 1) {
             ui->safe->setText("pass");
-            drawgreen *temp = new drawgreen;
-            ui->layout->addWidget(temp);
         }
-        else {
+        else if (getend() == 2){
             ui->safe->setText("danguous!");
-            drawred *temp = new drawred;
-            ui->layout->addWidget(temp);
+        }
+        else if (getend() == 3) {
+            ui->safe->setText("Fail to sotre,\n age invaild!");
+        }
+        else if (getend() == 4) {
+            ui->safe->setText("Fail to sotre,\n tempture invaild!");
+        }
+        else if (getend() == 5) {
+            ui->safe->setText("Fail to store,\n telephone invaild!");
+        }
+        else if (getend() == 6) {
+            ui->safe->setText("Fail to store,\n id invalid!");
         }
     }
 }
 
-
-
-void client::setend(QDBusReply<bool> end) {
-    this->end = end;
+void client::setend(QDBusReply<int> _end) {
+    end = _end;
 }
 
-bool client::getend() {
+int client::getend() {
     return end;
 }
-
